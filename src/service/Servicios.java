@@ -1,8 +1,10 @@
 package service;
-
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Scanner;
 import model.Camion;
 import model.Paquete;
 
@@ -17,16 +19,13 @@ public class Servicios {
 
     /*
     * Expresar la complejidad temporal del constructor.
-    *  ?????????
+    *  O(P), donde P = cantidad de paquetes
     */
     public Servicios(String pathCamiones, String pathPaquetes){
         this.camiones = new ArrayList<>();
         this.paquetes = new ArrayList<>();
         this.paquetesPorCodigo = new HashMap<>();
-
-        //hardcode borrar
-        Paquete paquete1 = new Paquete(1, "A000", 10, true, 10);
-        this.agregarPaquete(paquete1);
+        this.cargarPaquetes(pathPaquetes);
     }
     /*
     * Expresar la complejidad temporal del servicio 1.
@@ -43,7 +42,40 @@ public class Servicios {
     private void agregarPaquete(Paquete paquete) {
         this.paquetes.add(paquete);
         this.paquetesPorCodigo.put(paquete.getCodigoPaquete(), paquete);
-    }  
+    }
+    private void cargarPaquetes(String pathPaquetes)  {
+    try {
+            Scanner scan = new Scanner(new File(pathPaquetes));
+            if (scan.hasNextLine()) {
+                scan.nextLine();
+            }
+            while (scan.hasNextLine()) {
+                String linea = scan.nextLine();
+                Paquete paquete = crearPaquete(linea);
+                System.out.println(linea);
+            }
+            scan.close();
+        }catch (FileNotFoundException e) {
+            System.out.println("archivo paquetes no encontrado");
+        }
+    } 
+    private Paquete crearPaquete(String linea) {
+        String[] datos = linea.split(";");
+        int idPaquete = Integer.parseInt(datos[0]);
+        String codigoPaquete = datos[1];
+        int peso = Integer.parseInt(datos[2]);
+        boolean contieneAlimentos = datos[3].equals("1");
+        int nivelUrgencia = Integer.parseInt(datos[4]);
+    /*
+    ejemplo:
+        datos[0] = "1"
+        datos[1] = "P001"
+        datos[2] = "30"
+        datos[3] = "1" (1 true, 0 false)
+        datos[4] = "80"
+    */
+        return new Paquete(idPaquete, codigoPaquete, peso, contieneAlimentos, nivelUrgencia);
+    }
     /*
     * Expresar la complejidad temporal del servicio 2.
     */
