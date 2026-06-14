@@ -15,6 +15,9 @@ public class Servicios {
     private List<Paquete> paquetes;
     //estructura servicio 1
     private HashMap<String, Paquete> paquetesPorCodigo;
+    //estructuras servicio 2
+    private List<Paquete> paquetesConAlimentos;
+    private List<Paquete> paquetesSinAlimentos;
 
 
     /*
@@ -24,6 +27,8 @@ public class Servicios {
     public Servicios(String pathCamiones, String pathPaquetes){
         this.camiones = new ArrayList<>();
         this.paquetes = new ArrayList<>();
+        this.paquetesConAlimentos = new ArrayList<>();
+        this.paquetesSinAlimentos = new ArrayList<>();
         this.paquetesPorCodigo = new HashMap<>();
         this.cargarPaquetes(pathPaquetes);
     }
@@ -39,10 +44,37 @@ public class Servicios {
         }
         return null;
     }
+    
+    /*
+    * Expresar la complejidad temporal del servicio 2.
+    * Al retornar una lista pre construida a medida que se cargan los paquetes,
+    * se evita recorrer toda la lista
+    * Big O: O(1)
+    */
+    public List<Paquete> servicio2(boolean contieneAlimentos) {
+        if (contieneAlimentos) {
+            return this.paquetesConAlimentos;
+        }
+        return this.paquetesSinAlimentos;
+    }
+    /*
+    * Expresar la complejidad temporal del servicio 3.
+    */
+    public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {return null;}
+
+    //estructuras auxiliares
     private void agregarPaquete(Paquete paquete) {
+        //servivio 1
         this.paquetes.add(paquete);
         this.paquetesPorCodigo.put(paquete.getCodigoPaquete(), paquete);
+        //servicio 2
+        if (paquete.isContieneAlimentos()) {
+                this.paquetesConAlimentos.add(paquete);
+            }else {
+                    this.paquetesSinAlimentos.add(paquete);
+                }
     }
+
     private void cargarPaquetes(String pathPaquetes)  {
     try {
             Scanner scan = new Scanner(new File(pathPaquetes));
@@ -59,6 +91,8 @@ public class Servicios {
             System.out.println("archivo paquetes no encontrado");
         }
     } 
+
+
     private Paquete crearPaquete(String linea) {
         String[] datos = linea.split(";");
         int idPaquete = Integer.parseInt(datos[0]);
@@ -77,12 +111,5 @@ public class Servicios {
         datos[4] = "80"
     */
     }
-    /*
-    * Expresar la complejidad temporal del servicio 2.
-    */
-    public List<Paquete> servicio2(boolean contieneAlimentos) {return null;}
-    /*
-    * Expresar la complejidad temporal del servicio 3.
-    */
-    public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {return null;}
+    
 }
