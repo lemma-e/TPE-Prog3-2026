@@ -52,7 +52,7 @@ public class Servicios {
             while (scan.hasNextLine()) {
                 String linea = scan.nextLine();
                 Paquete paquete = crearPaquete(linea);
-                System.out.println(linea);
+                this.agregarPaquete(paquete);
             }
             scan.close();
         }catch (FileNotFoundException e) {
