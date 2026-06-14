@@ -15,6 +15,9 @@ public class Servicios {
     private List<Paquete> paquetes;
     //estructura servicio 1
     private HashMap<String, Paquete> paquetesPorCodigo;
+    //estructuras servicio 2
+    private List<Paquete> paquetesConAlimentos;
+    private List<Paquete> paquetesSinAlimentos;
 
 
     /*
@@ -24,6 +27,8 @@ public class Servicios {
     public Servicios(String pathCamiones, String pathPaquetes){
         this.camiones = new ArrayList<>();
         this.paquetes = new ArrayList<>();
+        this.paquetesConAlimentos = new ArrayList<>();
+        this.paquetesSinAlimentos = new ArrayList<>();
         this.paquetesPorCodigo = new HashMap<>();
         this.cargarPaquetes(pathPaquetes);
     }
