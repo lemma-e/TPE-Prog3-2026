@@ -1,6 +1,5 @@
 package service;
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,11 +17,14 @@ public class Servicios {
     //estructuras servicio 2
     private List<Paquete> paquetesConAlimentos;
     private List<Paquete> paquetesSinAlimentos;
+    //estructura servicio 3
+    private HashMap<Integer, List<Paquete>> paquetesPorUrgencia;
 
 
     /*
     * Expresar la complejidad temporal del constructor.
-    *  O(P), donde P = cantidad de paquetes
+    * /////O(P), donde P = cantidad de paquetes
+    * O(P+C), P=CANTIDAD DE PAQUETES, C=CANTIDAD DE CAMIONES
     */
     public Servicios(String pathCamiones, String pathPaquetes){
         this.camiones = new ArrayList<>();
@@ -30,7 +32,9 @@ public class Servicios {
         this.paquetesConAlimentos = new ArrayList<>();
         this.paquetesSinAlimentos = new ArrayList<>();
         this.paquetesPorCodigo = new HashMap<>();
+        this.paquetesPorUrgencia = new HashMap<>();
         this.cargarPaquetes(pathPaquetes);
+        this.cargarCamiones(pathCamiones);
     }
     /*
     * Expresar la complejidad temporal del servicio 1.
@@ -59,8 +63,27 @@ public class Servicios {
     }
     /*
     * Expresar la complejidad temporal del servicio 3.
+    * recorrer todos los niveles de urgencia dentro del rango
+    * en cada nivel se busca un hashmap
+    * Big O: O(N + M) (cantidad de niveles recorridos + cantidad de paquetes encontrados)
+    * si se devuelven todos los paquetes: O(P)
     */
-    public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {return null;}
+    public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {
+        List<Paquete> resultado = new ArrayList<>();
+        
+        int nivel = urgenciaMinima;
+
+        while (nivel <= urgenciaMaxima) {
+            if (this.paquetesPorUrgencia.containsKey(nivel)) {
+                List<Paquete> paquetesNivel = this.paquetesPorUrgencia.get(nivel);
+                for (Paquete paquete : paquetesNivel) {
+                    resultado.add(paquete);
+                }
+            }
+            nivel++;
+        }
+        return resultado;
+    }
 
     //estructuras auxiliares
     private void agregarPaquete(Paquete paquete) {
@@ -73,6 +96,12 @@ public class Servicios {
             }else {
                     this.paquetesSinAlimentos.add(paquete);
                 }
+        // servicio 3
+        int nivelUrgencia = paquete.getNivelUrgencia();
+        if (!this.paquetesPorUrgencia.containsKey(nivelUrgencia)) {
+            this.paquetesPorUrgencia.put(nivelUrgencia, new ArrayList<>());
+        }
+        this.paquetesPorUrgencia.get(nivelUrgencia).add(paquete);
     }
 
     private void cargarPaquetes(String pathPaquetes)  {
@@ -110,6 +139,37 @@ public class Servicios {
         datos[3] = "1" (1 true, 0 false)
         datos[4] = "80"
     */
+    }
+
+    private void agregarCamion(Camion camion) {
+        this.camiones.add(camion);
+    }
+
+    private void cargarCamiones(String pathCamiones) {
+        try {
+            Scanner scan = new Scanner(new File(pathCamiones));
+            if (scan.hasNextLine()) {
+                scan.nextLine(); // saltea la primera, que es la cantidad
+            }
+            while (scan.hasNextLine()) {
+                String linea = scan.nextLine();
+                Camion camion = crearCamion(linea);
+                this.agregarCamion(camion);
+            }
+            scan.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("archivo camiones no encontrado");
+        }
+    }
+
+    private Camion crearCamion(String linea) {
+        String[] datos = linea.split(";");
+        int idCamion = Integer.parseInt(datos[0]);
+        String patente = datos[1];
+        boolean estaRefrigerado = datos[2].equals("1");
+        int capacidad = Integer.parseInt(datos[3]);
+
+        return new Camion(idCamion, patente, estaRefrigerado, capacidad);
     }
     
 }
