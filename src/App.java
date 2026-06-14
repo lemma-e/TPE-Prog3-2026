@@ -14,6 +14,7 @@ public class App {
         System.out.println(servicios.servicio2(true));
         System.out.println("&&&&&&&&&&&&&&&&&");
         System.out.println("no contiene alimentos: ");
-    System.out.println(servicios.servicio2(false));
+        System.out.println(servicios.servicio2(false));
+
     }
 }

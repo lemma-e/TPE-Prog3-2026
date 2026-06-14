@@ -1,6 +1,5 @@
 package service;
-import java.io.File;
-import java.io.FileNotFoundException;
+import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +17,8 @@ public class Servicios {
     //estructuras servicio 2
     private List<Paquete> paquetesConAlimentos;
     private List<Paquete> paquetesSinAlimentos;
+    //estructura servicio 3
+    private HashMap<Integer, List<Paquete>> paquetesPorUrgencia;
 
 
     /*
@@ -30,6 +31,7 @@ public class Servicios {
         this.paquetesConAlimentos = new ArrayList<>();
         this.paquetesSinAlimentos = new ArrayList<>();
         this.paquetesPorCodigo = new HashMap<>();
+        this.paquetesPorUrgencia = new HashMap<>();
         this.cargarPaquetes(pathPaquetes);
     }
     /*
@@ -59,8 +61,27 @@ public class Servicios {
     }
     /*
     * Expresar la complejidad temporal del servicio 3.
+    * recorrer todos los niveles de urgencia dentro del rango
+    * en cada nivel se busca un hashmap
+    * Big O: O(N + M) (cantidad de niveles recorridos + cantidad de paquetes encontrados)
+    * si se devuelven todos los paquetes: O(P)
     */
-    public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {return null;}
+    public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {
+        List<Paquete> resultado = new ArrayList<>();
+        
+        int nivel = urgenciaMinima;
+
+        while (nivel <= urgenciaMaxima) {
+            if (this.paquetesPorUrgencia.containsKey(nivel)) {
+                List<Paquete> paquetesNivel = this.paquetesPorUrgencia.get(nivel);
+                for (Paquete paquete : paquetesNivel) {
+                    resultado.add(paquete);
+                }
+            }
+            nivel++;
+        }
+        return resultado;
+    }
 
     //estructuras auxiliares
     private void agregarPaquete(Paquete paquete) {
@@ -73,6 +94,12 @@ public class Servicios {
             }else {
                     this.paquetesSinAlimentos.add(paquete);
                 }
+        // servicio 3
+        int nivelUrgencia = paquete.getNivelUrgencia();
+        if (!this.paquetesPorUrgencia.containsKey(nivelUrgencia)) {
+            this.paquetesPorUrgencia.put(nivelUrgencia, new ArrayList<>());
+        }
+        this.paquetesPorUrgencia.get(nivelUrgencia).add(paquete);
     }
 
     private void cargarPaquetes(String pathPaquetes)  {
