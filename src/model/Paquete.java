@@ -6,7 +6,6 @@ public class Paquete {
     private String codigoPaquete;
     private int peso;
     private boolean contieneAlimentos;
-    //medir niveles de urgencia con numeros?
     private int nivelUrgencia;
         public Paquete(int idPaquete, String codigoPaquete, int peso, boolean contieneAlimentos, int nivelUrgencia) {
         this.idPaquete = idPaquete;
