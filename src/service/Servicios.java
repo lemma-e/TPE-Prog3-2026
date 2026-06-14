@@ -47,7 +47,7 @@ public class Servicios {
     try {
             Scanner scan = new Scanner(new File(pathPaquetes));
             if (scan.hasNextLine()) {
-                scan.nextLine();
+                scan.nextLine(); // saltea la primera, que es la cantidad
             }
             while (scan.hasNextLine()) {
                 String linea = scan.nextLine();
@@ -66,6 +66,8 @@ public class Servicios {
         int peso = Integer.parseInt(datos[2]);
         boolean contieneAlimentos = datos[3].equals("1");
         int nivelUrgencia = Integer.parseInt(datos[4]);
+
+        return new Paquete(idPaquete, codigoPaquete, peso, contieneAlimentos, nivelUrgencia);
     /*
     ejemplo:
         datos[0] = "1"
@@ -74,7 +76,6 @@ public class Servicios {
         datos[3] = "1" (1 true, 0 false)
         datos[4] = "80"
     */
-        return new Paquete(idPaquete, codigoPaquete, peso, contieneAlimentos, nivelUrgencia);
     }
     /*
     * Expresar la complejidad temporal del servicio 2.
