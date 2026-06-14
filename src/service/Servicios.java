@@ -23,7 +23,8 @@ public class Servicios {
 
     /*
     * Expresar la complejidad temporal del constructor.
-    *  O(P), donde P = cantidad de paquetes
+    * /////O(P), donde P = cantidad de paquetes
+    * O(P+C), P=CANTIDAD DE PAQUETES, C=CANTIDAD DE CAMIONES
     */
     public Servicios(String pathCamiones, String pathPaquetes){
         this.camiones = new ArrayList<>();
@@ -33,6 +34,7 @@ public class Servicios {
         this.paquetesPorCodigo = new HashMap<>();
         this.paquetesPorUrgencia = new HashMap<>();
         this.cargarPaquetes(pathPaquetes);
+        this.cargarCamiones(pathCamiones);
     }
     /*
     * Expresar la complejidad temporal del servicio 1.
@@ -137,6 +139,37 @@ public class Servicios {
         datos[3] = "1" (1 true, 0 false)
         datos[4] = "80"
     */
+    }
+
+    private void agregarCamion(Camion camion) {
+        this.camiones.add(camion);
+    }
+
+    private void cargarCamiones(String pathCamiones) {
+        try {
+            Scanner scan = new Scanner(new File(pathCamiones));
+            if (scan.hasNextLine()) {
+                scan.nextLine(); // saltea la primera, que es la cantidad
+            }
+            while (scan.hasNextLine()) {
+                String linea = scan.nextLine();
+                Camion camion = crearCamion(linea);
+                this.agregarCamion(camion);
+            }
+            scan.close();
+        } catch (FileNotFoundException e) {
+            System.out.println("archivo camiones no encontrado");
+        }
+    }
+
+    private Camion crearCamion(String linea) {
+        String[] datos = linea.split(";");
+        int idCamion = Integer.parseInt(datos[0]);
+        String patente = datos[1];
+        boolean estaRefrigerado = datos[2].equals("1");
+        int capacidad = Integer.parseInt(datos[3]);
+
+        return new Camion(idCamion, patente, estaRefrigerado, capacidad);
     }
     
 }
