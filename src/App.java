@@ -15,6 +15,13 @@ public class App {
         System.out.println("&&&&&&&&&&&&&&&&&");
         System.out.println("no contiene alimentos: ");
         System.out.println(servicios.servicio2(false));
+        
+        
+        System.out.println("--------------------------------------------------------");
+        System.out.println("50-100");
+        System.out.println(servicios.servicio3(50, 100));
+        System.out.println("1-10");
+        System.out.println(servicios.servicio3(1, 10));
 
     }
 }
