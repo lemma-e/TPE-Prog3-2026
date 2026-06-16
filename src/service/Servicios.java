@@ -26,8 +26,8 @@ public class Servicios {
 
     /*
     * Expresar la complejidad temporal del constructor.
-    * /////O(P), donde P = cantidad de paquetes
     * O(P+C), P=CANTIDAD DE PAQUETES, C=CANTIDAD DE CAMIONES
+    * Se recorren ambos archivos una sola vez.
     */
     public Servicios(String pathCamiones, String pathPaquetes){
         this.camiones = new ArrayList<>();
@@ -42,8 +42,8 @@ public class Servicios {
     /*
     * Expresar la complejidad temporal del servicio 1.
     * busqueda por hashmap con clave
-    * Big O: O(n)
-    * Promedio: O(1)
+    * Big O: O(n), donde n es la cantidad de paquetes
+    * Promedio: O(1), porque se busca por clave en un hashMap
     */
     public Paquete servicio1(String codigoPaquete) { 
             if (this.paquetesPorCodigo.containsKey(codigoPaquete)) {
@@ -69,7 +69,7 @@ public class Servicios {
     * recorrer todos los niveles de urgencia dentro del rango
     * en cada nivel se busca un hashmap
     * Big O: O(N + M) (cantidad de niveles recorridos + cantidad de paquetes encontrados)
-    * si se devuelven todos los paquetes: O(P)
+    * En peor caso, si se devuelven todos los paquetes: O(P)
     */
     public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {
         List<Paquete> resultado = new ArrayList<>();
@@ -183,7 +183,7 @@ public class Servicios {
     /*
     * El algoritmo backtracking explora las posibles asignaciones de paquetes, respetando
     * las restricciones de capacidad y refrigeración.
-    * C = cantidad de camiones
+    * C = cantidad de camiones + 1 (cantidad de alternativas por paquete)
     * P = cantidad de paquetes
     * En el peor caso, cada paquete puede asignarse a cualquiera de los camiones
     * o quedar sin asignarse
@@ -201,8 +201,8 @@ public class Servicios {
     * al camión válido que quede con menor espacio libre
     * C = cantidad de camiones
     * P = cantidad de paquetes
-    * seleccionarPaquete recorre los candidatos pendientes
-    * seleccionarCamion recorre los camiones
+    * seleccionarPaquete recorre los candidatos pendientes -> O(P^2)
+    * seleccionarCamion recorre los camiones por cada paquete -> O(P*C)
     * Big O: O(P^2 + P*C)
     */
     public Solucion greedy() {
