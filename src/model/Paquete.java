@@ -33,8 +33,10 @@ public class Paquete {
 
         @Override
         public String toString() {
-            return "Paquete [idPaquete=" + idPaquete + ", codigoPaquete=" + codigoPaquete + ", peso=" + peso
-                    + ", contieneAlimentos=" + contieneAlimentos + ", nivelUrgencia=" + nivelUrgencia + "]";
+            return codigoPaquete 
+                    + " [peso=" + peso 
+                    + ", alimentos=" + contieneAlimentos 
+                    + ", urgencia=" + nivelUrgencia + "]";
         }
     
 }

@@ -47,13 +47,29 @@ public class Solucion {
     public void setEstadosGenerados(int estadosGenerados) {
         this.estadosGenerados = estadosGenerados;
     }
+    private int calcularPeso(List<Paquete> paquetes) {
+        int total = 0;
+        for (Paquete paquete : paquetes) {
+            total += paquete.getPeso();
+        }
+        return total;
+    }
 
     @Override
     public String toString() {
-        return "Solucion [camiones=" + camiones + ", paquetesPorCamion=" + paquetesPorCamion + ", paquetesNoAsignados="
-                + paquetesNoAsignados + ", pesoNoAsignado=" + pesoNoAsignado + ", estadosGenerados=" + estadosGenerados
-                + ", getCamiones()=" + getCamiones() + ", getPaquetesPorCamion()=" + getPaquetesPorCamion()
-                + ", getPaquetesNoAsignados()=" + getPaquetesNoAsignados() + ", getPesoNoAsignado()="
-                + getPesoNoAsignado() + ", getEstadosGenerados()=" + getEstadosGenerados() + "]";
+        String resultado = "";
+        resultado += "Peso no asignado: " + this.pesoNoAsignado + "\n";
+        resultado += "Metrica: " + this.estadosGenerados + "\n\n";
+        int i = 0;
+        while (i < this.camiones.size()) {
+            Camion camion = this.camiones.get(i);
+            List<Paquete> paquetesAsignados = this.paquetesPorCamion.get(i);
+            resultado += camion + "\n";
+            resultado += "Carga usada: " + calcularPeso(paquetesAsignados) + "/" + camion.getCapacidad() + "\n";
+            resultado += "Paquetes asignados: " + paquetesAsignados + "\n\n";
+            i++;
+        }
+        resultado += "Paquetes no asignados: " + this.paquetesNoAsignados + "\n";
+        return resultado;
     }
 }

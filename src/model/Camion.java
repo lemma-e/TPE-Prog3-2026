@@ -29,7 +29,9 @@ public class Camion {
 
     @Override
     public String toString() {
-        return "Camion [idCamion=" + idCamion + ", patente=" + patente + ", estaRefrigerado=" + estaRefrigerado
+        return "Camion " + idCamion 
+                + " [" + patente 
+                + ", refrigerado=" + estaRefrigerado 
                 + ", capacidad=" + capacidad + "]";
     }
 }
