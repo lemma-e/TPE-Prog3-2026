@@ -27,5 +27,8 @@ public class App {
         System.out.println("--------------------------------------------------------");
         System.out.println("Backtracking:");
         System.out.println(servicios.backtracking());
+        System.out.println("--------------------------------------------------------");
+        System.out.println("Greedy:");
+        System.out.println(servicios.greedy());
     }
 }

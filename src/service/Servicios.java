@@ -1,5 +1,6 @@
 package service;
 import algorithm.Backtracking;
+import algorithm.Greedy;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -190,6 +191,22 @@ public class Servicios {
     */
     public Solucion backtracking() {
         Backtracking algoritmo = new Backtracking(this.camiones, this.paquetes);
+        return algoritmo.resolver();
+    }
+
+    //GREEDY
+    /*
+    * El algoritmo Greedy para asignar paquetes a camiones
+    * Selecciona el paquete más pesado pendiente y lo asigna
+    * al camión válido que quede con menor espacio libre
+    * C = cantidad de camiones
+    * P = cantidad de paquetes
+    * seleccionarPaquete recorre los candidatos pendientes
+    * seleccionarCamion recorre los camiones
+    * Big O: O(P^2 + P*C)
+    */
+    public Solucion greedy() {
+        Greedy algoritmo = new Greedy(this.camiones, this.paquetes);
         return algoritmo.resolver();
     }
 }
