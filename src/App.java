@@ -23,5 +23,9 @@ public class App {
         System.out.println("1-10");
         System.out.println(servicios.servicio3(1, 10));
 
+
+        System.out.println("--------------------------------------------------------");
+        System.out.println("Backtracking:");
+        System.out.println(servicios.backtracking());
     }
 }

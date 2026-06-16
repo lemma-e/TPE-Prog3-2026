@@ -1,4 +1,5 @@
 package service;
+import algorithm.Backtracking;
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -6,6 +7,7 @@ import java.util.List;
 import java.util.Scanner;
 import model.Camion;
 import model.Paquete;
+import model.Solucion;
 
 public class Servicios {
     //Completar con las estructuras y métodos privados que se requieran.
@@ -172,4 +174,22 @@ public class Servicios {
         return new Camion(idCamion, patente, estaRefrigerado, capacidad);
     }
     
+
+    //PARTE 2 
+//
+    //BACKTRACKING
+    //
+    /*
+    * El algoritmo backtracking explora las posibles asignaciones de paquetes, respetando
+    * las restricciones de capacidad y refrigeración.
+    * C = cantidad de camiones
+    * P = cantidad de paquetes
+    * En el peor caso, cada paquete puede asignarse a cualquiera de los camiones
+    * o quedar sin asignarse
+    * Big O: O(C^P)
+    */
+    public Solucion backtracking() {
+        Backtracking algoritmo = new Backtracking(this.camiones, this.paquetes);
+        return algoritmo.resolver();
+    }
 }
