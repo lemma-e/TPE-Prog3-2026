@@ -1,5 +1,6 @@
 package algorithm;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import model.Camion;
@@ -10,6 +11,7 @@ public class Backtracking {
     private List<Paquete> paquetes;
 
     private Solucion mejorSolucion;
+
     private int mejorPesoNoAsignado;
     private int estadosGenerados;
 
@@ -22,6 +24,33 @@ public class Backtracking {
     }
 
     /*
+    * estructuras necesarias para comenzar el backtracking.
+    * lista de paquetes asignados por cada camion
+    * lista con el peso actual cargado en cada camion
+    * lista de paquetes no asignados
+    * llama al metodo recursivo back desde el primer paquete
+    * devuelve la mejor solución encontrada
+    */
+    public Solucion resolver() {
+        List<List<Paquete>> asignacionActual = new ArrayList<>();
+        List<Integer> pesoActualPorCamion = new ArrayList<>();
+        int index = 0;
+        while (index < this.camiones.size()) {
+            asignacionActual.add(new ArrayList<>());
+            pesoActualPorCamion.add(0);
+            index++;
+        }
+        List<Paquete> paquetesNoAsignadosActual = new ArrayList<>();
+        back(0, asignacionActual, pesoActualPorCamion, paquetesNoAsignadosActual, 0);
+        if (this.mejorSolucion != null) {
+            this.mejorSolucion.setEstadosGenerados(this.estadosGenerados);
+        }
+        return this.mejorSolucion;
+    }
+
+
+
+    /*
      * Raiz: no hay paquetes asignados
      * Estados: cada estado es una asignacion parcial de paquetes a camiones
      * Niveles: cada nivel representa la decision sobre un paquete
@@ -32,7 +61,7 @@ public class Backtracking {
      * Podas:
      * - !NO asignar si se supera la capacidad del camion
      * - !NO asignar alimentos a un camion no refrigerado
-     * - Podar si el peso no asignado ya no mejora la mejor solucion.
+     * - Podar si el peso no asignado ya no mejora la mejor solucion
     */
 
     /*
@@ -80,6 +109,90 @@ public class Backtracking {
             agregarANoAsignados(paqueteActual, paquetesNoAsignadosActual);
             back(indicePaquete + 1, asignacionActual, pesoActualPorCamion, paquetesNoAsignadosActual, pesoNoAsignadoActual + paqueteActual.getPeso());
             quitarDeNoAsignados(paqueteActual, paquetesNoAsignadosActual);
+        }
+    }
+
+    /*
+    * Indica si se llegó a una solución completa
+    * Como cada nivel del árbol representa la decisión sobre un paquete
+    * es una solución cuando el índice alcanza la cantidad total de paquetes
+    */
+    private boolean esSolucion(int indicePaquete){
+        return indicePaquete == this.paquetes.size();
+    }
+
+    /*
+    * el objetivo es minimizar el peso no asignado, si el peso no asignado
+    * actual ya es mayor o igual que el mejor peso encontrado hasta el momento
+    * entonces esta rama no puede mejorar la mejor solución
+    */
+    private boolean hayPoda(int pesoNoAsignadoActual){
+        return pesoNoAsignadoActual >= this.mejorPesoNoAsignado;
+    }
+
+    /*
+    * Verificar si un paquete puede ser asignado a un camion
+    * Se puede asignar si:
+    * - El peso actual del camion + peso del paquete no debe superar la capacidad
+    * - Si el paquete contiene alimentos, el camion debe estar refrigerado
+    */
+    private boolean puedeAsignar(Paquete paquete, Camion camion, int pesoActualCamion){
+        if (pesoActualCamion + paquete.getPeso() > camion.getCapacidad()) {
+            return false;
+        }
+        if (paquete.isContieneAlimentos() && !camion.isEstaRefrigerado()) {
+            return false;
+        }
+        return true;
+    }
+
+    /*
+    * Agregar un paquete a la solución parcial
+    * nroCamion -> posición de la lista de camiones en la que se está asignando el paquete
+    * y se actualiza el peso actual cargado en ese camion
+    */
+    private void agregarASolucion(Paquete paquete, int nroCamion, List<List<Paquete>> asignacionActual, List<Integer> pesoActualPorCamion){
+        asignacionActual.get(nroCamion).add(paquete);
+        int nuevoPeso = pesoActualPorCamion.get(nroCamion) + paquete.getPeso();
+        pesoActualPorCamion.set(nroCamion, nuevoPeso);
+    }
+
+    /*
+    * Quitar un paquete ed la solución parcial
+    * Quitar el paquete de la lista del camion 
+    * y se actualiza el peso actual cargado en ese camión
+    */
+    private void quitarDeSolucion(Paquete paquete, int nroCamion, List<List<Paquete>> asignacionActual, List<Integer> pesoActualPorCamion){
+        asignacionActual.get(nroCamion).remove(asignacionActual.get(nroCamion).size() - 1);
+        int nuevoPeso = pesoActualPorCamion.get(nroCamion) - paquete.getPeso();
+        pesoActualPorCamion.set(nroCamion, nuevoPeso);
+    }
+
+    /*
+    * Agrega un paquete a la lista de paquetes no asignados
+    * cuando en una rama del árbol se decide no cargar el paquete en ningún camión
+    * el paquete forma parte de la solución como no asignado
+    */
+    private void agregarANoAsignados(Paquete paquete, List<Paquete> paquetesNoAsignadosActual){
+        paquetesNoAsignadosActual.add(paquete);
+    }
+
+    /*
+    * Quita un paquete de la lista de paquetes no asignados
+    * Para volver al estado anterior y seguir probando otras ramas
+    */
+    private void quitarDeNoAsignados(Paquete paquete, List<Paquete> paquetesNoAsignadosActual){
+        paquetesNoAsignadosActual.remove(paquetesNoAsignadosActual.size() - 1);
+    }
+
+    /*
+    * Si el peso no asignado de la solución actual es menor que el mejor peso
+    * encontrado hasta el momento entonces se guarda esta solución como la mejor
+    */
+    private void operarSolucion(List<List<Paquete>> asignacionActual, List<Paquete> paquetesNoAsignadosActual, int pesoNoAsignadoActual){
+        if (pesoNoAsignadoActual < this.mejorPesoNoAsignado){
+            this.mejorPesoNoAsignado = pesoNoAsignadoActual;
+            this.mejorSolucion = new Solucion(this.camiones, asignacionActual, paquetesNoAsignadosActual, pesoNoAsignadoActual, this.estadosGenerados);
         }
     }
 }
