@@ -2,10 +2,9 @@ package algorithm;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import model.Camion;
 import model.Paquete;
-
+import model.Solucion;
 public class Backtracking {
     private List<Camion> camiones;
     private List<Paquete> paquetes;
