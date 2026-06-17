@@ -319,7 +319,7 @@ Paquetes no asignados: []
 
 ---
 
-# 🔎 Backtracking
+# Backtracking
 
 ## Estrategia
 
