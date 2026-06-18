@@ -7,8 +7,8 @@
 
 # Integrantes
 
-- Cuartas, Sofia Micaela
-- Lemma, Ignacio
+- Cuartas, Sofia Micaela (cuartassofiamicaela@gmail.com)
+- Lemma, Ignacio (ilemma@alumnos.exa.unicen.edu.ar)
 
 ---
 
