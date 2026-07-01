@@ -169,10 +169,10 @@ public Paquete servicio1(String codigoPaquete)
 
 ### Estructura utilizada
 
-Se utiliza un `HashMap<String, Paquete>`:
+Se utiliza un `TreeMap<String, Paquete>`:
 
 ```java
-private HashMap<String, Paquete> paquetesPorCodigo;
+private TreeMap<String, Paquete> paquetesPorCodigo;
 ```
 
 La clave es el código del paquete y el valor es el objeto `Paquete`
@@ -247,13 +247,14 @@ La clave es el nivel de urgencia y el valor es la lista de paquetes con ese nive
 ### Complejidad
 
 ```text
-O(N + M)
+O(log U + K + M)
 ```
 
 Donde:
 
-- `N` es la cantidad de niveles de urgencia recorridos
-- `M` es la cantidad de paquetes encontrados y agregados al resultado
+- `U` es la cantidad de niveles de urgencia cargados.
+- `K` es la cantidad de niveles de urgencia existentes dentro del rango.
+- `M` es la cantidad de paquetes encontrados y agregados al resultado.
 
 En el peor caso, si se devuelven todos los paquetes, puede considerarse:
 
@@ -271,7 +272,7 @@ Donde `P` es la cantidad total de paquetes
 |---|---|---|---|---|
 | Servicio 1 | Código de paquete | `Paquete` o `null` | `HashMap<String, Paquete>` | `O(1)` promedio |
 | Servicio 2 | Booleano alimentos | Lista de paquetes | Listas preconstruidas | `O(1)` |
-| Servicio 3 | Rango de urgencia | Lista de paquetes | `HashMap<Integer, List<Paquete>>` | `O(N + M)` |
+| Servicio 3 | Rango de urgencia | Lista de paquetes | `TreeMap<Integer, List<Paquete>>` | `O(log U + K + M)` |
 
 ---
 
@@ -283,13 +284,10 @@ El objetivo es asignar paquetes a camiones minimizando el peso total de paquetes
 
 ## Restricciones
 
-Para asignar un paquete a un camión se deben respetar dos restricciones:
-
-1. El camión no puede superar su capacidad máxima de carga
-2. Si el paquete contiene alimentos, solo puede asignarse a un camión refrigerado
+La verificación de capacidad y refrigeración fue movida a la clase `Camion`, ya que cargar paquetes y controlar el peso actual son responsabilidades propias del camión
 
 ```java
-private boolean puedeAsignar(Paquete paquete, Camion camion, int pesoActualCamion)
+public boolean puedeCargar(Paquete paquete)
 ```
 
 ---
@@ -308,7 +306,7 @@ Ejemplo de salida:
 
 ```text
 Peso no asignado: 0
-Metrica: 13
+Metrica: 5
 
 Camion 100 [AAA000A, refrigerado=true, capacidad=100]
 Carga usada: 55/100
@@ -363,6 +361,9 @@ Se aplican podas cuando:
 - El paquete contiene alimentos y el camión no es refrigerado
 - El peso no asignado actual ya no puede mejorar la mejor solución encontrada
 
+> [!IMPORTANT]
+> Las podas se verifican antes de realizar la llamada recursiva. De esta forma, si una rama no puede mejorar la solución o viola una restricción, no se genera un nuevo estado innecesario.
+
 ---
 
 ## Métrica
@@ -412,11 +413,11 @@ O((C + 1)^P)
 ## Estrategia
 
 En cada paso:
-
-1. Selecciona el paquete más pesado que aún no fue procesado
-2. Busca el camión válido que quede con menor espacio libre luego de cargarlo
-3. Si existe un camión válido, asigna el paquete
-4. Si no existe, deja el paquete sin asignar
+1. Recorre los paquetes previamente ordenados por peso descendente
+2. Toma el paquete actual
+3. Busca el camión válido que quede con menor espacio libre luego de cargarlo
+4. Si existe un camión válido, asigna el paquete
+5. Si no existe, deja el paquete sin asignar
 
 ---
 
@@ -462,7 +463,7 @@ Cada paquete seleccionado desde el conjunto de candidatos se cuenta como candida
 La complejidad es:
 
 ```text
-O(P^2 + P*C)
+O(P log P + P*C)
 ```
 
 Donde:
@@ -472,8 +473,8 @@ Donde:
 
 Esto se debe a que:
 
-- `seleccionarPaquete` recorre los candidatos pendientes
-- `seleccionarCamion` recorre los camiones para cada paquete
+- Primero se ordenan los paquetes de mayor a menor peso: `O(P log P)`.
+- Luego, para cada paquete, se recorren los camiones buscando el camión válido que quede con menor espacio libre: `O(P*C)`.
 
 > [!WARNING]
 > Greedy no garantiza encontrar la solución óptima. Toma decisiones locales y no vuelve atrás
@@ -547,10 +548,10 @@ Complejidad: O((C + 1)^P)
 Metrica: estados generados
 
 Peso no asignado: 0
-Metrica: 13
+Metrica: 5
 
 GREEDY
-Complejidad: O(P^2 + P*C)
+Complejidad: O(P log P + P*C)
 Metrica: candidatos considerados
 
 Peso no asignado: 25
@@ -572,6 +573,35 @@ private HashMap<String, Paquete> paquetesPorCodigo;
 ```
 
 Esto permite obtener paquetes por código con complejidad promedio `O(1)`
+
+---
+
+## Uso de `TreeMap` para niveles de urgencia
+
+Para el Servicio 3 se utiliza un `TreeMap<Integer, List<Paquete>>`.
+
+```java
+private TreeMap<Integer, List<Paquete>> paquetesPorUrgencia;
+```
+
+---
+
+
+---
+
+## Responsabilidad de carga en `Camion`
+
+La clase `Camion` administra su propia carga actual.
+
+Cada camión mantiene:
+- Lista de paquetes asignados.
+- Peso actual cargado.
+- Método para verificar si puede cargar un paquete.
+- Método para cargar un paquete.
+- Método para quitar el último paquete, utilizado en Backtracking.
+- Método para limpiar la carga antes de ejecutar un algoritmo.
+
+Esto evita que Backtracking y Greedy tengan estructuras auxiliares separadas para representar el peso actual y los paquetes asignados a cada camión.
 
 ---
 
@@ -633,8 +663,8 @@ boolean contieneAlimentos = datos[3].equals("1");
 - https://www.youtube.com/watch?v=0bH5p9gdTtY
 - https://stackoverflow.com/questions/3946529/what-is-the-best-standard-style-for-a-tostring-implementation
 - https://stackoverflow.com/questions/43370772/how-to-pretty-print-a-complex-java-object-e-g-with-fields-that-are-collections
-- https://stackoverflow.com/questions/3615721/how-to-use-the-tostring-method-in-java?utm_source=chatgpt.com
-- https://stackoverflow.com/questions/11659515/overriding-tostring-method?utm_source=chatgpt.com
-- https://mkyong.com/java/how-to-read-and-parse-csv-file-in-java/?utm_source=chatgpt.com
+- https://stackoverflow.com/questions/3615721/how-to-use-the-tostring-method-in-java
+- https://stackoverflow.com/questions/11659515/overriding-tostring-method
+- https://mkyong.com/java/how-to-read-and-parse-csv-file-in-java/
 - https://www.youtube.com/watch?v=VX9CwPn-BBE
-- https://stackoverflow.com/questions/52108017/csv-split-by-a-comma?utm_source=chatgpt.com
+- https://stackoverflow.com/questions/52108017/csv-split-by-a-comma

@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Scanner;
+import java.util.TreeMap;
 import model.Camion;
 import model.Paquete;
 import model.Solucion;
@@ -21,13 +22,16 @@ public class Servicios {
     private List<Paquete> paquetesConAlimentos;
     private List<Paquete> paquetesSinAlimentos;
     //estructura servicio 3
-    private HashMap<Integer, List<Paquete>> paquetesPorUrgencia;
-
+    private TreeMap<Integer, List<Paquete>> paquetesPorUrgencia;
 
     /*
     * Expresar la complejidad temporal del constructor.
-    * O(P+C), P=CANTIDAD DE PAQUETES, C=CANTIDAD DE CAMIONES
-    * Se recorren ambos archivos una sola vez.
+    * N = cantidad de camiones
+    * M = cantidad de paquetes
+    * K = cantidad de niveles de urgencia cargados
+    * Cargar camiones -> O(N)
+    * Cargar paquetes -> O(M log K) insertar niveles de urgencia en TreeMap
+    * Big O: O(N + M log K)
     */
     public Servicios(String pathCamiones, String pathPaquetes){
         this.camiones = new ArrayList<>();
@@ -35,7 +39,7 @@ public class Servicios {
         this.paquetesConAlimentos = new ArrayList<>();
         this.paquetesSinAlimentos = new ArrayList<>();
         this.paquetesPorCodigo = new HashMap<>();
-        this.paquetesPorUrgencia = new HashMap<>();
+        this.paquetesPorUrgencia = new TreeMap<>();
         this.cargarPaquetes(pathPaquetes);
         this.cargarCamiones(pathCamiones);
     }
@@ -66,27 +70,30 @@ public class Servicios {
     }
     /*
     * Expresar la complejidad temporal del servicio 3.
-    * recorrer todos los niveles de urgencia dentro del rango
-    * en cada nivel se busca un hashmap
-    * Big O: O(N + M) (cantidad de niveles recorridos + cantidad de paquetes encontrados)
-    * En peor caso, si se devuelven todos los paquetes: O(P)
+    * TreeMap ordenado por nivel de urgencia
+    * los subMap se obtienen solamente los niveles de urgencia
+    * que están dentro del rango
+    * N = cantidad de niveles de urgencia cargados
+    * K = cantidad de niveles de urgencia existentes dentro del rango
+    * M = cantidad de paquetes encontrados dentro del rango
+    * Buscar en el TreeMap -> O(log N)
+    * Recorrer los niveles existentes del rango -> O(K)
+    * Agregar los paquetes encontrados -> O(M)
+    * O(log N + K + M)
+    * En peor caso si se devuelven todos los paquetes: O(P)
     */
     public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima) {
         List<Paquete> resultado = new ArrayList<>();
-        
-        int nivel = urgenciaMinima;
-
-        while (nivel <= urgenciaMaxima) {
-            if (this.paquetesPorUrgencia.containsKey(nivel)) {
-                List<Paquete> paquetesNivel = this.paquetesPorUrgencia.get(nivel);
-                for (Paquete paquete : paquetesNivel) {
-                    resultado.add(paquete);
-                }
-            }
-            nivel++;
+        if (urgenciaMinima > urgenciaMaxima) {
+            return resultado;
+        }
+        for (List<Paquete> paquetesNivel : this.paquetesPorUrgencia
+                .subMap(urgenciaMinima, true, urgenciaMaxima, true)
+                .values()) {
+            resultado.addAll(paquetesNivel);
         }
         return resultado;
-    }
+    } 
 
     //estructuras auxiliares
     private void agregarPaquete(Paquete paquete) {
@@ -197,13 +204,14 @@ public class Servicios {
     //GREEDY
     /*
     * El algoritmo Greedy para asignar paquetes a camiones
-    * Selecciona el paquete más pesado pendiente y lo asigna
+    * Primero ordena los paquetes de mayor a menor peso
+    * Luego recorre esa lista ordenada y asigna cada paquete
     * al camión válido que quede con menor espacio libre
     * C = cantidad de camiones
     * P = cantidad de paquetes
-    * seleccionarPaquete recorre los candidatos pendientes -> O(P^2)
+    * ordenar los paquetes -> O(P log P)
     * seleccionarCamion recorre los camiones por cada paquete -> O(P*C)
-    * Big O: O(P^2 + P*C)
+    * Big O: O(P log P + P*C)
     */
     public Solucion greedy() {
         Greedy algoritmo = new Greedy(this.camiones, this.paquetes);

@@ -1,16 +1,16 @@
 package algorithm;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import model.Camion;
 import model.Paquete;
 import model.Solucion;
 
 public class Greedy {
-
     private List<Camion> camiones;
     private List<Paquete> paquetes;
-
     private int candidatosConsiderados;
 
     public Greedy(List<Camion> camiones, List<Paquete> paquetes) {
@@ -21,22 +21,14 @@ public class Greedy {
 
     /*
      * Estrategia Greedy:
-     * El candidato es el paquete mas pesado que todavía no fue procesado
-     * idea: es intentar asignar primero los paquetes de mayor peso porque si
-     * quedan sin asignar aumentan más el peso total no asignado
-     * La asignacion se busca entre los camiones válidos aquel que quede con
-     * menor espacio libre luego de cargar el paquete e intentar aprovechar
-     * mejor la capacidad disponible.
-     * El paquete que no puede asignarse a ningún camion se agrega a la lista de
-     * paquetes no asignados
-     * 1. Crea solución vacía
-     * 2. Copia los paquetes como candidatos
-     * 3. Mientras haya candidatos:
-            - elige el paquete más pesado
-            - busca el camion válido que quede con menor espacio libre
-            - si existe lo asigna
-            - si no existe lo deja no asignado
-     * 4. Devuelve Solucion
+     * Primero se ordenan los paquetes de mayor a menor peso
+     * La idea es intentar asignar primero los paquetes más pesados porque
+     * si quedan sin asignar aumentan mas el peso total no asignado
+     * Luego se recorre la lista ordenada de paquetes
+     * Para cada paquete se busca entre los camiones válidos que quede
+     * con menor espacio libre luego de cargar
+     * Si el paquete no puede asignarse a ningún camion, se agrega a la lista
+     * de paquetes no asignados
      */
 
     /*
@@ -48,71 +40,65 @@ public class Greedy {
     * el peso total no asignado y la cantidad de candidatos considerados
     */
     public Solucion resolver() {
-        List<List<Paquete>> asignacionActual = new ArrayList<>();
-        List<Integer> pesoActualPorCamion = new ArrayList<>();
-
-        int i = 0;
-        while (i < this.camiones.size()) {
-            asignacionActual.add(new ArrayList<>());
-            pesoActualPorCamion.add(0);
-            i++;
-        }
-
+        limpiarCargaCamiones();
         List<Paquete> paquetesNoAsignados = new ArrayList<>();
         List<Paquete> candidatos = new ArrayList<>(this.paquetes);
-
+        ordenarPorPesoDescendente(candidatos);
         int pesoNoAsignado = 0;
-        while (!candidatos.isEmpty()) {
-            Paquete paqueteActual = seleccionarPaquete(candidatos);
-            candidatos.remove(paqueteActual);
+        int i = 0;
+        while (i < candidatos.size()) {
+            Paquete paqueteActual = candidatos.get(i);
             this.candidatosConsiderados++;
-
-            int nroCamion = seleccionarCamion(paqueteActual, pesoActualPorCamion);
-            if (nroCamion != -1) {
-                agregarASolucion(paqueteActual, nroCamion, asignacionActual, pesoActualPorCamion);
+            Camion camionElegido = seleccionarCamion(paqueteActual);
+            if (camionElegido != null) {
+                camionElegido.cargarPaquete(paqueteActual);
             } else {
                 paquetesNoAsignados.add(paqueteActual);
                 pesoNoAsignado += paqueteActual.getPeso();
             }
-        }
-        return new Solucion(this.camiones,asignacionActual,paquetesNoAsignados,pesoNoAsignado,this.candidatosConsiderados);
-    }
-
-    /*
-     * Selecciona el paquete más pesado entre los candidatos
-     */
-    private Paquete seleccionarPaquete(List<Paquete> candidatos) {
-        Paquete mejorPaquete = candidatos.get(0);
-        int i = 1;
-
-        while (i < candidatos.size()) {
-            Paquete paqueteActual = candidatos.get(i);
-            if (paqueteActual.getPeso() > mejorPaquete.getPeso()) {
-                mejorPaquete = paqueteActual;
-            }
             i++;
         }
-        return mejorPaquete;
+        Solucion solucion = new Solucion(
+                this.camiones,
+                obtenerAsignacionActual(),
+                paquetesNoAsignados,
+                pesoNoAsignado,
+                this.candidatosConsiderados
+        );
+        limpiarCargaCamiones();
+        return solucion;
     }
 
     /*
-     * Selecciona el camion válido que queda con menor espacio libre
-     * luego de cargar el paquete
-     * Si no hay ningún camion válido, devuelve -1
-     */
-    private int seleccionarCamion(Paquete paquete, List<Integer> pesoActualPorCamion) {
-        int mejorCamion = -1;
+    * Ordena los paquetes candidatos de mayor a menor peso
+    * Esto permite aplicar la función de selección greedy recorriendo
+    * la lista ya ordenada, sin buscar el paquete más pesado en cada iteracion
+    */
+    private void ordenarPorPesoDescendente(List<Paquete> candidatos) {
+        Collections.sort(candidatos, new Comparator<Paquete>() {
+            @Override
+            public int compare(Paquete p1, Paquete p2) {
+                return Integer.compare(p2.getPeso(), p1.getPeso());
+            }
+        });
+    }
+
+    /*
+    * Selecciona el camión válido que queda con menor espacio libre
+    * luego de cargar el paquete
+    * Si no hay ningún camion válido devuelve null
+    */
+    private Camion seleccionarCamion(Paquete paquete) {
+        Camion mejorCamion = null;
         int menorEspacioLibre = Integer.MAX_VALUE;
         int i = 0;
-
         while (i < this.camiones.size()) {
             Camion camion = this.camiones.get(i);
-            int pesoActual = pesoActualPorCamion.get(i);
-            if (puedeAsignar(paquete, camion, pesoActual)) {
-                int espacioLibre = camion.getCapacidad() - (pesoActual + paquete.getPeso());
+            if (camion.puedeCargar(paquete)) {
+                int espacioLibre = camion.getCapacidad() - (camion.getPesoActual() + paquete.getPeso());
                 if (espacioLibre < menorEspacioLibre) {
                     menorEspacioLibre = espacioLibre;
-                    mejorCamion = i;
+                    mejorCamion = camion;
                 }
             }
             i++;
@@ -120,28 +106,22 @@ public class Greedy {
         return mejorCamion;
     }
 
-    /*
-     * Verifica si un paquete puede asignarse a un camion:
-     * - no debe superar la capacidad del camion
-     * - si contiene alimentos, el camión debe estar refrigerado
-     */
-    private boolean puedeAsignar(Paquete paquete, Camion camion, int pesoActualCamion) {
-        if (pesoActualCamion + paquete.getPeso() > camion.getCapacidad()) {
-            return false;
+    private List<List<Paquete>> obtenerAsignacionActual() {
+        List<List<Paquete>> asignacionActual = new ArrayList<>();
+        int i = 0;
+        while (i < this.camiones.size()) {
+            Camion camion = this.camiones.get(i);
+            asignacionActual.add(new ArrayList<>(camion.getPaquetesAsignados()));
+            i++;
         }
-        if (paquete.isContieneAlimentos() && !camion.isEstaRefrigerado()) {
-            return false;
-        }
-        return true;
+        return asignacionActual;
     }
 
-    /*
-     * Agrega un paquete a la solución parcial y actualiza el peso actual
-     * cargado en el camion correspondiente
-     */
-    private void agregarASolucion(Paquete paquete,int nroCamion,List<List<Paquete>> asignacionActual,List<Integer> pesoActualPorCamion){
-        asignacionActual.get(nroCamion).add(paquete);
-        int nuevoPeso = pesoActualPorCamion.get(nroCamion) + paquete.getPeso();
-        pesoActualPorCamion.set(nroCamion, nuevoPeso);
+    private void limpiarCargaCamiones() {
+        int i = 0;
+        while (i < this.camiones.size()) {
+            this.camiones.get(i).limpiarCarga();
+            i++;
+        }
     }
 }

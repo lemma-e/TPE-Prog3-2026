@@ -26,7 +26,7 @@ public class App {
 
         System.out.println("--------------------------------------------------------");
         System.out.println("SERVICIO 3:");
-        System.out.println("Complejidad: O(N + M)");
+        System.out.println("Complejidad: O(log N + M + K)");
         System.out.println(" ");
         System.out.println("Rango 1 a 10:");
         System.out.println(servicios.servicio3(1, 10));
@@ -46,7 +46,7 @@ public class App {
 
         System.out.println("--------------------------------------------------------");
         System.out.println("GREEDY");
-        System.out.println("Complejidad: O(P^2 + P*C)");
+        System.out.println("Complejidad: O(P log P + P*C)");
         System.out.println("Metrica: candidatos considerados");
         System.out.println(" ");
         System.out.println(servicios.greedy());
