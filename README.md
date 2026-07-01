@@ -169,10 +169,10 @@ public Paquete servicio1(String codigoPaquete)
 
 ### Estructura utilizada
 
-Se utiliza un `TreeMap<String, Paquete>`:
+Se utiliza un `Hashmap<String, Paquete>`:
 
 ```java
-private TreeMap<String, Paquete> paquetesPorCodigo;
+private Hashmap<String, Paquete> paquetesPorCodigo;
 ```
 
 La clave es el código del paquete y el valor es el objeto `Paquete`
@@ -236,10 +236,10 @@ public List<Paquete> servicio3(int urgenciaMinima, int urgenciaMaxima)
 
 ### Estructura utilizada
 
-Se utiliza un `HashMap<Integer, List<Paquete>>`:
+Se utiliza un `TreeMap<Integer, List<Paquete>>`:
 
 ```java
-private HashMap<Integer, List<Paquete>> paquetesPorUrgencia;
+private TreeMap<Integer, List<Paquete>> paquetesPorUrgencia;
 ```
 
 La clave es el nivel de urgencia y el valor es la lista de paquetes con ese nivel
